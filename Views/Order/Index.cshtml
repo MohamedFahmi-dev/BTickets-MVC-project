@@ -1,0 +1,68 @@
+﻿@model List<BTickets.Models.Order>
+@{
+    ViewData["Title"] = "All orders";
+}
+
+@if (User.Identity.IsAuthenticated && ViewBag.CartCount > 0)
+{
+    <div class="row mb-3">
+        <div class="col-md-8 offset-2">
+            <div class="alert alert-info d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-cart4"></i> You have @ViewBag.CartCount item(s) in your cart
+                </span>
+                <a class="btn btn-primary btn-sm" asp-action="ShoppingCart">
+                    View Cart
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <p>
+            <h4>List of all your orders</h4>
+        </p>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <th>User</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td class="align-middle">@order.Id</td>
+                        <td class="align-middle">
+                            <ul style="list-style-type:none">
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <li>
+                                        <div class="alert alert-info" role="alert">
+                                            <span class="badge bg-success">@item.Amount</span> [@item.Price.ToString("c")] - @item.Movie.Name
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+                        <td class="align-middle">
+                            @order.OrderItems.Select(m => m.Movie.Price * m.Amount).Sum().ToString("c")
+                        </td>
+                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <td class="align-middle"> @order.User.FirstName @order.User.LastName => @order.User.Email </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

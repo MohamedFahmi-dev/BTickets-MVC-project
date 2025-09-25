@@ -1,0 +1,97 @@
+﻿@using BTickets.Data.Enum
+@model BTickets.Models.Movie
+@{
+    ViewData["Title"] = "Create";
+    SelectList deptoption = new SelectList(ViewBag.Cinemas, "Id", "Name");
+    SelectList deptoption2 = new SelectList(ViewBag.Producers, "Id", "FullName");
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="text-center">Create</h1>
+            <h4 class="text-center">Movie</h4>
+            <hr />
+
+            <form asp-action="Create">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Price" class="control-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ImageURL" class="control-label"></label>
+                    <input asp-for="ImageURL" class="form-control" />
+                    <span asp-validation-for="ImageURL" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" type="date" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="EndDate" class="control-label"></label>
+                    <input asp-for="EndDate" class="form-control" type="date" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="movieCategory" class="control-label">Movie Category</label>
+                    <select asp-for="movieCategory" class="form-control" asp-items="Html.GetEnumSelectList<MovieCategory>()">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                    <span asp-validation-for="movieCategory" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CinemaId" class="control-label">Cinema</label>
+                    <select asp-for="CinemaId" class="form-control" asp-items="deptoption">
+                        <option value="">-- Select Cinema --</option>
+                    </select>
+                    <span asp-validation-for="CinemaId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ProducerId" class="control-label">Producer</label>
+                    <select asp-for="ProducerId" class="form-control" asp-items="deptoption2">
+                        <option value="">-- Select Producer --</option>
+                    </select>
+                    <span asp-validation-for="ProducerId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-center">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-backspace-reverse-fill"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

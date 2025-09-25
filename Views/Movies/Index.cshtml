@@ -1,0 +1,189 @@
+﻿@model PaginatedResult<Movie>
+@{
+    ViewData["Title"] = "Movies";
+}
+<div class="page-header">
+    <h1 class="page-title">🎬 Movies </h1>
+</div>
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <a asp-action="Create" asp-controller="Movies" class="btn btn-outline-primary btn-lg">
+        <i class="bi bi-sign-intersection"></i> Create New
+    </a>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <span class="text-muted">
+            Showing @Model.StartItem to @Model.EndItem of @Model.TotalItems movies
+        </span>
+    </div>
+</div>
+
+<div class="movies-container">
+    @foreach (var item in Model.Items)
+    {
+        <div class="movie-card">
+            <div class="movie-header">
+                <div class="header-actions">
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-controller="Movies" asp-route-id="@item.Id" class="btn btn-primary-custom">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a asp-action="Delete" asp-controller="Movies" asp-route-id="@item.Id" class="btn btn-danger">
+                            <i class="bi bi-trash3"></i>
+                        </a>
+                    }
+                </div>
+                <h2 class="movie-title">@item.Name</h2>
+            </div>
+            <div class="movie-body">
+                <div class="movie-image">
+                    <img src="@item.ImageURL" alt="@item.Name">
+                </div>
+                <div class="movie-details">
+                    <p class="movie-description">@item.Description</p>
+                    <div class="movie-info">
+                        <div class="info-row">
+                            <span class="info-label">Cinema:</span>
+                            <span class="info-value">@(item.Cinema?.Name ?? "N/A")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Category:</span>
+                            <span class="info-value">@item.movieCategory</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Start:</span>
+                            <span class="info-value">@item.StartDate.ToString("dd MMM yy")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">End:</span>
+                            <span class="info-value">@item.EndDate.ToString("dd MMM yy")</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value">
+                                @if (DateTime.Now >= item.StartDate && DateTime.Now <= item.EndDate)
+                                {
+                                    <span class="status-badge status-available">Available</span>
+                                }
+                                else if (DateTime.Now > item.EndDate)
+                                {
+                                    <span class="status-badge status-expired">Expired</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-upcoming">Upcoming</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="movie-footer">
+                <div class="button-group">
+                    <a class="btn-custom btn-primary-custom" asp-action="Details" asp-route-id="@item.Id">
+                        <i class="bi bi-eye-fill"></i> Show Details
+                    </a>
+                    @if (DateTime.Now > item.EndDate)
+                    {
+                        <span class="btn-custom btn-disabled">
+                            <i class="bi bi-cart-x"></i>
+                            Expired
+                            <span class="price-highlight">(@item.Price.ToString("c"))</span>
+                        </span>
+                    }
+                    else
+                    {
+                        <a class="btn-custom btn-success-custom"
+                           asp-controller="Order"
+                           asp-action="AddToShoppingCart"
+                           asp-route-id="@item.Id">
+                            <i class="bi bi-cart-plus"></i>
+                            Add to Cart
+                            <span class="price-highlight">(@item.Price.ToString("c"))</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Movie pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                <a class="page-link"
+                   href="@Url.Action("Index", new { page = Model.CurrentPage - 1, pageSize = Model.PageSize })"
+                   aria-disabled="@(!Model.HasPreviousPage)">
+                    <i class="bi bi-chevron-left"></i> Previous
+                </a>
+            </li>
+
+            @{
+                int startPage = Math.Max(1, Model.CurrentPage - 2);
+                int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+            }
+
+            @if (startPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", new { page = 1, pageSize = Model.PageSize })">1</a>
+                </li>
+                @if (startPage > 2)
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                }
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new { page = i, pageSize = Model.PageSize })">
+                        @i
+                    </a>
+                </li>
+            }
+
+            @if (endPage < Model.TotalPages)
+            {
+                @if (endPage < Model.TotalPages - 1)
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                }
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Index", new { page = Model.TotalPages, pageSize = Model.PageSize })">@Model.TotalPages</a>
+                </li>
+            }
+
+            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                <a class="page-link"
+                   href="@Url.Action("Index", new { page = Model.CurrentPage + 1, pageSize = Model.PageSize })"
+                   aria-disabled="@(!Model.HasNextPage)">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-center mt-2">
+        <small class="text-muted">
+            Page @Model.CurrentPage of @Model.TotalPages
+        </small>
+    </div>
+}
+
+<script>
+    function changePageSize(pageSize) {
+        window.location.href = '@Url.Action("Index")?page=1&pageSize=' + pageSize;
+    }
+</script>
+

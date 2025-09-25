@@ -1,0 +1,33 @@
+﻿@model List<BTickets.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "All Users";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-2">
+        <h4>System Users</h4>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    @if (user.FirstName != "Admin")
+                    {
+                        <tr>
+                            <td>@user.FirstName @user.LastName</td>
+                            <td>@user.Email</td>
+                            <td>@user.UserName</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
